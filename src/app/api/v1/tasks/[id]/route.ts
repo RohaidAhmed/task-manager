@@ -9,7 +9,7 @@ export async function GET(
 ) {
     try {
         await connectDB()
-        const task = await Task.findOne({ _id: params.id });
+        const task = await Task.findById( params.id );
 
         if (!task) {
             return NextResponse.json(
