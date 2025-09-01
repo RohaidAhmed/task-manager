@@ -5,15 +5,16 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET /api/v1/tasks/[id] - Get single task
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB()
-        const task = await Task.findById( params.id );
+        const {id} = await params
+        const task = await Task.findById( id );
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${params.id}` },
+                { msg: `No task with id: ${id}` },
                 { status: 404 }
             );
         }
@@ -30,13 +31,14 @@ export async function GET(
 // PUT /api/v1/tasks/[id] - Update task
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB()
+        const {id} = await params
         const body = await request.json();
         const task = await Task.findByIdAndUpdate(
-            params.id,
+            id,
             body,
             {
                 new: true,
@@ -46,7 +48,7 @@ export async function PATCH(
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${params.id}` },
+                { msg: `No task with id: ${id}` },
                 { status: 404 }
             );
         }
@@ -63,15 +65,16 @@ export async function PATCH(
 // DELETE /api/v1/tasks/[id] - Delete task
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB()
-        const task = await Task.findByIdAndDelete(params.id);
+        const {id} = await params
+        const task = await Task.findByIdAndDelete(id);
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${params.id}` },
+                { msg: `No task with id: ${id}` },
                 { status: 404 }
             );
         }
