@@ -67,7 +67,7 @@ export async function DELETE(
 ) {
     try {
         await connectDB()
-        const task = await Task.findOneAndDelete({ _id: params.id });
+        const task = await Task.findByIdAndDelete(params.id);
 
         if (!task) {
             return NextResponse.json(
