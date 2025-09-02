@@ -8,10 +8,8 @@ export async function GET(
     ctx: RouteContext<'/api/v1/tasks/[id]'>
 ) {
     const { id } = await ctx.params;
-    console.log(id);
     try {
         // Await the params to resolve the Promise
-
         if (!id) {
             return NextResponse.json(
                 {
@@ -21,11 +19,8 @@ export async function GET(
                 { status: 400 }
             );
         }
-
         await connectDB();
-
         const task = await Task.findById(id);
-
         if (!task) {
             return NextResponse.json(
                 {
@@ -56,7 +51,7 @@ export async function GET(
 }
 
 // PATCH /api/v1/tasks/[id] - Update task
-export async function PATCH(
+export async function PUT(
     request: NextRequest,
     ctx: RouteContext<'/api/v1/tasks/[id]'>
 ) {

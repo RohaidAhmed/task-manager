@@ -63,7 +63,7 @@ function EditTaskContent() {
       const taskName = formData.get('name') as string;
       const taskCompleted = formData.get('completed') === 'on';
 
-      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`, {
+      const { data } = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`, {
         name: taskName,
         completed: taskCompleted,
       });
