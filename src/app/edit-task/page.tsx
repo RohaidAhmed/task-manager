@@ -3,7 +3,8 @@
 import { useState, useEffect, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import apiClient from '@/lib/axios';
+// import apiClient from '@/lib/axios';
+import axios from 'axios';
 
 interface Task {
   _id: string;
@@ -24,7 +25,7 @@ function EditTaskContent() {
     if (!id) return;
 
     try {
-      const { data } = await apiClient.get(`/api/v1/tasks/${id}`);
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`);
       console.log('API Response:', data);
 
       // Access the task from data.data.task
@@ -61,7 +62,7 @@ function EditTaskContent() {
       const taskName = formData.get('name') as string;
       const taskCompleted = formData.get('completed') === 'on';
 
-      const { data } = await apiClient.patch(`/api/v1/tasks/${id}`, {
+      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`, {
         name: taskName,
         completed: taskCompleted,
       });
