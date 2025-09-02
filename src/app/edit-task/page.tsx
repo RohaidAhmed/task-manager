@@ -11,7 +11,6 @@ interface Task {
   completed: boolean;
 }
 
-// Create a separate component for the main content that uses useSearchParams
 function EditTaskContent() {
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,13 +25,19 @@ function EditTaskContent() {
 
     try {
       const { data } = await apiClient.get(`/api/v1/tasks/${id}`);
-      setTask(data.task);
-      setTempName(data.task.name);
+      console.log('API Response:', data);
+
+      // Access the task from data.data.task
+      if (data.data && data.data.task) {
+        setTask(data.data.task);
+      } else {
+        throw new Error('Task not found in response');
+      }
     } catch (error: any) {
       console.error('Error fetching task:', error);
-      setFormAlert({ 
-        message: error.response?.data?.message || 'Error fetching task', 
-        type: 'error' 
+      setFormAlert({
+        message: error.response?.data?.message || 'Error fetching task',
+        type: 'error'
       });
     }
   };
@@ -43,6 +48,7 @@ function EditTaskContent() {
     }
   }, [id]);
 
+  // ... rest of your component remains the same until the return statement
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!id || !task) return;
@@ -62,22 +68,22 @@ function EditTaskContent() {
 
       setTask(data.task);
       setTempName(data.task.name);
-      
+
       setFormAlert({ message: 'Success, edited task', type: 'success' });
     } catch (error: any) {
       console.error('Error updating task:', error);
-      setFormAlert({ 
-        message: error.response?.data?.message || 'Error, please try again', 
-        type: 'error' 
+      setFormAlert({
+        message: error.response?.data?.message || 'Error, please try again',
+        type: 'error'
       });
-      
+
       // Reset to previous name on error
       if (task) {
         setTask({ ...task, name: tempName });
       }
     } finally {
       setIsLoading(false);
-      
+
       // Clear alert after 3 seconds
       setTimeout(() => {
         setFormAlert(null);
@@ -160,11 +166,10 @@ function EditTaskContent() {
           {/* Form Alert */}
           {formAlert && (
             <div
-              className={`mt-4 p-4 rounded-lg border ${
-                formAlert.type === 'success'
+              className={`mt-4 p-4 rounded-lg border ${formAlert.type === 'success'
                   ? 'bg-green-50 border-green-200 text-green-800'
                   : 'bg-red-50 border-red-200 text-red-800'
-              }`}
+                }`}
             >
               <div className="flex items-center">
                 {formAlert.type === 'success' ? (

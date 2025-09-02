@@ -13,7 +13,10 @@ export async function GET(
         
         if (!id) {
             return NextResponse.json(
-                { msg: 'Task ID is required' },
+                { 
+                    status: 'error',
+                    message: 'Task ID is required' 
+                },
                 { status: 400 }
             );
         }
@@ -24,7 +27,10 @@ export async function GET(
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task found with id: ${id}` },
+                { 
+                    status: 'error',
+                    message: `No task found with id: ${id}` 
+                },
                 { status: 404 }
             );
         }
@@ -41,42 +47,67 @@ export async function GET(
         return NextResponse.json(
             { 
                 status: 'error',
-                msg: error instanceof Error ? error.message : 'Internal server error' 
+                message: error instanceof Error ? error.message : 'Internal server error' 
             },
             { status: 500 }
         );
     }
 }
 
-// PUT /api/v1/tasks/[id] - Update task
+// PATCH /api/v1/tasks/[id] - Update task
 export async function PATCH(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await connectDB()
-        const { id } = await params
+        // Await the params to resolve the Promise
+        const { id } = await params;
+        
+        if (!id) {
+            return NextResponse.json(
+                { 
+                    status: 'error',
+                    message: 'Task ID is required' 
+                },
+                { status: 400 }
+            );
+        }
+
         const body = await request.json();
+        const { name, completed } = body;
+
+        await connectDB();
+        
         const task = await Task.findByIdAndUpdate(
             id,
-            body,
-            {
-                new: true,
-                runValidators: true
-            }
+            { name, completed },
+            { new: true, runValidators: true }
         );
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${id}` },
+                { 
+                    status: 'error',
+                    message: `No task found with id: ${id}` 
+                },
                 { status: 404 }
             );
         }
 
-        return NextResponse.json({ task }, { status: 200 });
+        return NextResponse.json({ 
+            status: 'success',
+            data: {
+                task: task
+            }
+        }, { status: 200 });
+        
     } catch (error) {
+        console.error('Error updating task:', error);
         return NextResponse.json(
-            { msg: error instanceof Error ? error.message : 'Internal server error' },
+            { 
+                status: 'error',
+                message: error instanceof Error ? error.message : 'Internal server error' 
+            },
             { status: 500 }
         );
     }
@@ -88,21 +119,45 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await connectDB()
-        const { id } = await params
+        // Await the params to resolve the Promise
+        const { id } = await params;
+        
+        if (!id) {
+            return NextResponse.json(
+                { 
+                    status: 'error',
+                    message: 'Task ID is required' 
+                },
+                { status: 400 }
+            );
+        }
+
+        await connectDB();
+        
         const task = await Task.findByIdAndDelete(id);
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${id}` },
+                { 
+                    status: 'error',
+                    message: `No task found with id: ${id}` 
+                },
                 { status: 404 }
             );
         }
 
-        return NextResponse.json({ task: null, status: 'success' }, { status: 200 });
+        return NextResponse.json({ 
+            status: 'success',
+            message: 'Task deleted successfully'
+        }, { status: 200 });
+        
     } catch (error) {
+        console.error('Error deleting task:', error);
         return NextResponse.json(
-            { msg: error instanceof Error ? error.message : 'Internal server error' },
+            { 
+                status: 'error',
+                message: error instanceof Error ? error.message : 'Internal server error' 
+            },
             { status: 500 }
         );
     }
