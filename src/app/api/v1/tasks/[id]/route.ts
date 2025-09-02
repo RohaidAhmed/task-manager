@@ -8,6 +8,7 @@ export async function GET(
     ctx: RouteContext<'/api/v1/tasks/[id]'>
 ) {
     const { id } = await ctx.params;
+    console.log(id);
     try {
         // Await the params to resolve the Promise
 
