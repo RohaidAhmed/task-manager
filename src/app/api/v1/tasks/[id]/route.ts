@@ -51,7 +51,7 @@ export async function GET(
 }
 
 // PATCH /api/v1/tasks/[id] - Update task
-export async function PUT(
+export async function PATCH(
     request: NextRequest,
     ctx: RouteContext<'/api/v1/tasks/[id]'>
 ) {
