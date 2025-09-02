@@ -26,8 +26,8 @@ function EditTaskContent() {
 
     try {
       const { data } = await apiClient.get(`/api/v1/tasks/${id}`);
-      setTask(data.tasks);
-      setTempName(data.tasks.name);
+      setTask(data.task);
+      setTempName(data.task.name);
     } catch (error: any) {
       console.error('Error fetching task:', error);
       setFormAlert({ 
@@ -60,8 +60,8 @@ function EditTaskContent() {
         completed: taskCompleted,
       });
 
-      setTask(data.tasks);
-      setTempName(data.tasks.name);
+      setTask(data.task);
+      setTempName(data.task.name);
       
       setFormAlert({ message: 'Success, edited task', type: 'success' });
     } catch (error: any) {

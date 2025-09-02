@@ -8,37 +8,40 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params
-
+        // Await the params to resolve the Promise
+        const { id } = await params;
+        
         if (!id) {
             return NextResponse.json(
-                { msg: 'task id is required' },
-                { status: 404 }
-            )
+                { msg: 'Task ID is required' },
+                { status: 400 }
+            );
         }
 
-        await connectDB()
+        await connectDB();
+        
         const task = await Task.findById(id);
 
         if (!task) {
             return NextResponse.json(
-                { msg: `No task with id: ${id}` },
+                { msg: `No task found with id: ${id}` },
                 { status: 404 }
             );
         }
 
-        return NextResponse.json({
+        return NextResponse.json({ 
             status: 'success',
             data: {
                 task: task
-            },
+            }
         }, { status: 200 });
+        
     } catch (error) {
         console.error('Error fetching task:', error);
         return NextResponse.json(
-            {
+            { 
                 status: 'error',
-                msg: error instanceof Error ? error.message : 'Internal server error'
+                msg: error instanceof Error ? error.message : 'Internal server error' 
             },
             { status: 500 }
         );
