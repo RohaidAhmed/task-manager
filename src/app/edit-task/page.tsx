@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 // import apiClient from '@/lib/axios';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 
 interface Task {
   _id: string;
@@ -26,7 +26,7 @@ function EditTaskContent() {
     if (!id) return;
 
     try {
-      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`);
+      const { data } = await apiClient.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`);
       console.log('API Response:', data);
 
       // Access the task from data.data.task
@@ -52,46 +52,48 @@ function EditTaskContent() {
 
   // ... rest of your component remains the same until the return statement
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!id || !task) return;
+  e.preventDefault();
+  if (!id || !task) return;
 
-    setIsLoading(true);
-    setFormAlert(null);
+  setIsLoading(true);
+  setFormAlert(null);
 
-    try {
-      const formData = new FormData(e.currentTarget as HTMLFormElement);
-      const taskName = formData.get('name') as string;
-      const taskCompleted = formData.get('completed') === 'on';
+  try {
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const taskName = formData.get('name') as string;
+    const taskCompleted = formData.get('completed') === 'on';
 
-      const { data } = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`, {
-        name: taskName,
-        completed: taskCompleted,
-      });
+    const { data } = await apiClient.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tasks/${id}`, {
+      name: taskName,
+      completed: taskCompleted,
+    });
 
-      setTask(data.task);
-      setTempName(data.task.name);
+    // FIXED: Access the task correctly from response
+    const updatedTask = data.data; // data.data contains the task object
+    setTask(updatedTask);
+    setTempName(updatedTask.name);
 
-      setFormAlert({ message: 'Success, edited task', type: 'success' });
-    } catch (error: any) {
-      console.error('Error updating task:', error);
-      setFormAlert({
-        message: error.response?.data?.message || 'Error, please try again',
-        type: 'error'
-      });
+    setFormAlert({ message: 'Success, edited task', type: 'success' });
+  } catch (error: any) {
+    console.error('Error updating task:', error);
+    setFormAlert({
+      message: error.response?.data?.message || 'Error, please try again',
+      type: 'error'
+    });
 
-      // Reset to previous name on error
-      if (task) {
-        setTask({ ...task, name: tempName });
-      }
-    } finally {
-      setIsLoading(false);
-
-      // Clear alert after 3 seconds
-      setTimeout(() => {
-        setFormAlert(null);
-      }, 3000);
+    // Reset to previous name on error
+    if (task) {
+      setTask({ ...task, name: tempName });
     }
-  };
+  } finally {
+    setIsLoading(false);
+
+    // Clear alert after 3 seconds
+    setTimeout(() => {
+      setFormAlert(null);
+    }, 3000);
+  }
+};
 
   if (!id) {
     return (
