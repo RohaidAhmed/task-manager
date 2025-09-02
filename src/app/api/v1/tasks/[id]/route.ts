@@ -8,9 +8,17 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params
+
+        if (!id) {
+            return NextResponse.json(
+                { msg: 'task id is required' },
+                { status: 404 }
+            )
+        }
+
         await connectDB()
-        const {id} = await params
-        const task = await Task.findById( id );
+        const task = await Task.findById(id);
 
         if (!task) {
             return NextResponse.json(
@@ -19,10 +27,19 @@ export async function GET(
             );
         }
 
-        return NextResponse.json({ task }, { status: 200 });
+        return NextResponse.json({
+            status: 'success',
+            data: {
+                task: task
+            },
+        }, { status: 200 });
     } catch (error) {
+        console.error('Error fetching task:', error);
         return NextResponse.json(
-            { msg: error instanceof Error ? error.message : 'Internal server error' },
+            {
+                status: 'error',
+                msg: error instanceof Error ? error.message : 'Internal server error'
+            },
             { status: 500 }
         );
     }
@@ -35,7 +52,7 @@ export async function PATCH(
 ) {
     try {
         await connectDB()
-        const {id} = await params
+        const { id } = await params
         const body = await request.json();
         const task = await Task.findByIdAndUpdate(
             id,
@@ -69,7 +86,7 @@ export async function DELETE(
 ) {
     try {
         await connectDB()
-        const {id} = await params
+        const { id } = await params
         const task = await Task.findByIdAndDelete(id);
 
         if (!task) {
